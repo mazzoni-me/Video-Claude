@@ -18,7 +18,7 @@ export const FESTIVAL_DURATION =
 
 // Background track: drop the file at public/music/tertulia.mp3.
 const MUSIC_FILE = "music/tertulia.mp3";
-const MUSIC_START_SECONDS = 0;
+const MUSIC_START_SECONDS = 121; // 2:01
 
 export const FestivalVideo: React.FC = () => {
   const hasMusic = getStaticFiles().some((f) => f.name === MUSIC_FILE);

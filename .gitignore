@@ -5,3 +5,6 @@ dist
 
 # Ignore the output video from Git but not videos you import into src/.
 out
+
+# Copyrighted background track: keep it local, do not commit it.
+public/music/*.mp3
