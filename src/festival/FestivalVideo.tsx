@@ -7,6 +7,7 @@ import {
   staticFile,
 } from "remotion";
 import { DanceScene } from "./DanceScene";
+import { MUSIC_FILE, MUSIC_START_SECONDS } from "./music";
 import { Sponsored } from "./Sponsored";
 import { Title } from "./Title";
 
@@ -16,9 +17,6 @@ export const DANCE_DURATION = 300;
 export const FESTIVAL_DURATION =
   TITLE_DURATION + SPONSORED_DURATION + DANCE_DURATION;
 
-// Background track: drop the file at public/music/tertulia.mp3.
-const MUSIC_FILE = "music/tertulia.mp3";
-const MUSIC_START_SECONDS = 121; // 2:01
 
 export const FestivalVideo: React.FC = () => {
   const hasMusic = getStaticFiles().some((f) => f.name === MUSIC_FILE);
@@ -54,7 +52,7 @@ export const FestivalVideo: React.FC = () => {
         durationInFrames={DANCE_DURATION}
         name="Ballo"
       >
-        <DanceScene />
+        <DanceScene startFrame={TITLE_DURATION + SPONSORED_DURATION} />
       </Sequence>
     </AbsoluteFill>
   );
