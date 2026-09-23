@@ -34,63 +34,48 @@ const Dancer: React.FC<DancerProps> = ({
   const frame = useCurrentFrame();
   const { fps, height } = useVideoConfig();
 
-  // One full side-to-side sway every two beats; arms flow over four beats.
-  const sway = Math.PI * beats + phase;
-  const flow = (Math.PI / 2) * beats + phase;
-  const s = Math.sin(sway);
+  // One movement cycle every two beats, so every bounce lands on a beat.
+  const t = Math.PI * beats + phase;
+  const s = Math.sin(t);
+  const c = Math.cos(t);
 
   const pose = {
-    leftUpperArm: 115 + 40 * Math.sin(flow),
-    leftForearm: 30 + 25 * Math.sin(flow + 0.9),
-    rightUpperArm: -(115 + 40 * Math.sin(flow + Math.PI)),
-    rightForearm: -(30 + 25 * Math.sin(flow + Math.PI + 0.9)),
-    leftThigh: 8 + 8 * s,
-    leftShin: -14 * Math.max(0, s) ** 2,
-    rightThigh: -8 + 8 * s,
-    rightShin: 14 * Math.max(0, -s) ** 2,
+    leftUpperArm: 105 + 40 * s,
+    leftForearm: 15 + 30 * Math.sin(t + 1.2),
+    rightUpperArm: -(110 + 55 * Math.sin(t + Math.PI * 0.8)),
+    rightForearm: -(25 + 40 * Math.sin(t + 2)),
+    leftThigh: 14 + 18 * Math.max(0, s),
+    leftShin: -Math.max(0, 40 * s),
+    rightThigh: -14 - 18 * Math.max(0, -s),
+    rightShin: Math.max(0, -40 * s),
   };
 
-  // Gentle knee dip on every beat instead of jumping.
-  const dip = 8 * (1 - Math.cos(2 * sway)) * 0.5;
-  const hipShift = 22 * s;
-  const lean = 5 * s;
-  const drift = 50 * Math.sin((Math.PI / 8) * beats + phase);
+  const size = height * 0.32;
+  const bounce = Math.abs(s) * size * 0.08;
+  const sway = 8 * c;
+  const drift = 90 * Math.sin(t / 4);
+  // Every so often the dancer quickly turns around, flipping horizontally.
+  const turn = Math.max(-1, Math.min(1, Math.cos(t / 3 + phase) * 5));
 
   const enter = spring({
     frame: frame - enterDelay,
     fps,
-    config: { damping: 200 },
-    durationInFrames: 20,
+    config: { damping: 10, stiffness: 120 },
   });
-
-  const size = height * 0.45;
 
   return (
     <div
       style={{
         position: "absolute",
         left: `calc(50% + ${baseX + drift}px)`,
-        bottom: height * 0.18,
-        transform: `translateX(-50%) scale(${interpolate(enter, [0, 1], [0.85, 1])})`,
+        bottom: height * 0.22,
+        transform: `translateX(-50%) scale(${enter})`,
         transformOrigin: "bottom center",
-        opacity: enter,
       }}
     >
       <div
         style={{
-          position: "absolute",
-          left: "50%",
-          bottom: -12,
-          width: size * 0.42,
-          height: 24,
-          transform: `translateX(calc(-50% + ${hipShift}px))`,
-          borderRadius: "50%",
-          background: "rgba(60, 40, 90, 0.12)",
-        }}
-      />
-      <div
-        style={{
-          transform: `translate(${hipShift}px, ${dip}px) rotate(${lean}deg)`,
+          transform: `translateY(${-bounce}px) rotate(${sway}deg) scaleX(${turn})`,
           transformOrigin: "bottom center",
         }}
       >
@@ -130,15 +115,15 @@ export const DanceScene: React.FC<{ startFrame: number }> = ({
           color={manColor}
           beats={beats}
           phase={0}
-          baseX={-240}
+          baseX={-220}
           enterDelay={0}
         />
         <Dancer
           hair="bob"
           color={womanColor}
           beats={beats}
-          phase={Math.PI / 2}
-          baseX={240}
+          phase={1.7}
+          baseX={220}
           enterDelay={6}
         />
       </AbsoluteFill>
