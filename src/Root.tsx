@@ -1,10 +1,18 @@
 import "./index.css";
-import { MyComposition } from "./Composition";
+import { Composition } from "remotion";
+import { FESTIVAL_DURATION, FestivalVideo } from "./festival/FestivalVideo";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <MyComposition />
+      <Composition
+        id="RomaEuropaFestival"
+        component={FestivalVideo}
+        durationInFrames={FESTIVAL_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
     </>
   );
 };
