@@ -1,4 +1,11 @@
-import { AbsoluteFill, Sequence } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  getStaticFiles,
+  interpolate,
+  Sequence,
+  staticFile,
+} from "remotion";
 import { DanceScene } from "./DanceScene";
 import { Sponsored } from "./Sponsored";
 import { Title } from "./Title";
@@ -9,9 +16,29 @@ export const DANCE_DURATION = 300;
 export const FESTIVAL_DURATION =
   TITLE_DURATION + SPONSORED_DURATION + DANCE_DURATION;
 
+// Background track: drop the file at public/music/tertulia.mp3.
+const MUSIC_FILE = "music/tertulia.mp3";
+const MUSIC_START_SECONDS = 0;
+
 export const FestivalVideo: React.FC = () => {
+  const hasMusic = getStaticFiles().some((f) => f.name === MUSIC_FILE);
+
   return (
     <AbsoluteFill>
+      {hasMusic ? (
+        <Audio
+          src={staticFile(MUSIC_FILE)}
+          startFrom={MUSIC_START_SECONDS * 30}
+          volume={(f) =>
+            interpolate(
+              f,
+              [0, 15, FESTIVAL_DURATION - 30, FESTIVAL_DURATION],
+              [0, 1, 1, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+            )
+          }
+        />
+      ) : null}
       <Sequence durationInFrames={TITLE_DURATION} name="Titolo">
         <Title />
       </Sequence>

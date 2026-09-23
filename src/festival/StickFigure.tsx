@@ -14,7 +14,6 @@ type Pose = {
 };
 
 const STROKE = 14;
-const SKIN = "#FFF8F0";
 
 // Angles are in degrees, 0 = limb pointing straight down.
 // Positive rotates towards the figure's left side of the screen.
@@ -40,8 +39,7 @@ const Limb: React.FC<{
           height={12}
           rx={6}
           fill={FESTIVAL_YELLOW}
-          stroke="#D9A800"
-          strokeWidth={3}
+          stroke="none"
         />
       ) : null}
     </g>
@@ -107,33 +105,15 @@ export const StickFigure: React.FC<{
         <Limb
           x={150}
           y={160}
-          upper={pose.leftUpperArm}
-          lower={pose.leftForearm}
-          upperLength={62}
-          lowerLength={58}
-          color={color}
-          bracelet
-        />
-        <Limb
-          x={150}
-          y={160}
           upper={pose.rightUpperArm}
           lower={pose.rightForearm}
           upperLength={62}
           lowerLength={58}
           color={color}
-          bracelet
         />
 
-        <circle cx={headX} cy={headY} r={headR} fill={SKIN} stroke={color} />
-        <circle cx={headX - 12} cy={headY + 2} r={4.5} fill={color} stroke="none" />
-        <circle cx={headX + 12} cy={headY + 2} r={4.5} fill={color} stroke="none" />
-        <path
-          d={`M ${headX - 13} ${headY + 14} Q ${headX} ${headY + 26} ${headX + 13} ${headY + 14}`}
-          stroke={color}
-          strokeWidth={5}
-        />
-
+        {/* Faceless silhouette: head and hair share the figure colour. */}
+        <circle cx={headX} cy={headY} r={headR} fill={color} stroke="none" />
         {hair === "bob" ? (
           <path
             d={`M ${headX - 44} ${headY - 8} Q ${headX - 44} ${headY - 50} ${headX} ${headY - 50} Q ${headX + 44} ${headY - 50} ${headX + 44} ${headY - 8} Z`}
@@ -143,6 +123,18 @@ export const StickFigure: React.FC<{
         ) : (
           <CurlyHair cx={headX} cy={headY} r={headR} color={color} />
         )}
+
+        {/* Drawn last so the bracelet stays visible when the arm is raised. */}
+        <Limb
+          x={150}
+          y={160}
+          upper={pose.leftUpperArm}
+          lower={pose.leftForearm}
+          upperLength={62}
+          lowerLength={58}
+          color={color}
+          bracelet
+        />
       </g>
     </svg>
   );
@@ -154,38 +146,22 @@ const CurlyHair: React.FC<{
   r: number;
   color: string;
 }> = ({ cx, cy, r, color }) => {
-  const curls: { x: number; y: number; size: number }[] = [];
-  // Outer ring of curls from ear to ear over the top of the head.
-  for (let deg = -200; deg <= 20; deg += 20) {
+  // Small overlapping bumps in the same colour as the head give a soft,
+  // curly outline without drawing individual curls.
+  const bumps: { x: number; y: number; size: number }[] = [];
+  for (let deg = -190; deg <= 10; deg += 18) {
     const a = (deg * Math.PI) / 180;
-    curls.push({
-      x: cx + Math.cos(a) * (r + 6),
-      y: cy + Math.sin(a) * (r + 6),
-      size: 15,
-    });
-  }
-  // Second row on top so the hair reads as a big mop of curls.
-  for (let deg = -150; deg <= -30; deg += 24) {
-    const a = (deg * Math.PI) / 180;
-    curls.push({
-      x: cx + Math.cos(a) * (r + 22),
-      y: cy + Math.sin(a) * (r + 22),
-      size: 14,
+    bumps.push({
+      x: cx + Math.cos(a) * (r + 2),
+      y: cy - 6 + Math.sin(a) * (r + 4),
+      size: 13,
     });
   }
 
   return (
-    <g>
-      {curls.map((c, i) => (
-        <circle
-          key={i}
-          cx={c.x}
-          cy={c.y}
-          r={c.size}
-          fill={color}
-          stroke={SKIN}
-          strokeWidth={2}
-        />
+    <g fill={color} stroke="none">
+      {bumps.map((b, i) => (
+        <circle key={i} cx={b.x} cy={b.y} r={b.size} />
       ))}
     </g>
   );
